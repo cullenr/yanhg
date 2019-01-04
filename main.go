@@ -9,10 +9,15 @@ import (
 )
 
 const windowWidth = 800
-const windowHeight = 600
+const windowHeight = 640
 
 var vertexShader = `
 #version 330
+// TODO make a standard header for shaders including these constants
+
+// viewportWidth / tilesize
+const vec2 viewTileRes  = vec2(25, 20);
+const vec2 viewPixelRes = vec2(800, 640);
 
 layout (location = 0) in vec2 vert;
 layout (location = 1) in vec2 _uv;
