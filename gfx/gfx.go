@@ -14,6 +14,7 @@ import (
 	"github.com/go-gl/glfw/v3.2/glfw"
 )
 
+
 const float32Size = 4
 
 func init() {
@@ -124,20 +125,21 @@ func ProgramFromSource(vertexShaderSource, fragmentShaderSource string) (uint32,
 	return program, nil
 }
 
-func LoadTexture(file string) (uint32, error) {
+func LoadTexture(file string) (Texture, error) {
 	imgFile, err := os.Open(file)
 	if err != nil {
-		return 0, fmt.Errorf("texture %q not found on disk: %v", file, err)
+		return Texture{}, fmt.Errorf("could not load texture %q: %v", file, err)
 	}
+    defer imgFile.Close()
 
 	img, _, err := image.Decode(imgFile)
 	if err != nil {
-		return 0, err
+		return Texture{}, err
 	}
 
 	rgba := image.NewRGBA(img.Bounds())
 	if rgba.Stride != rgba.Rect.Size().X * 4 {
-		return 0, fmt.Errorf("unsupported stride")
+		return Texture{}, fmt.Errorf("unsupported stride")
 	}
 
 	draw.Draw(rgba, rgba.Bounds(), img, image.Point{0, 0}, draw.Src)
@@ -161,6 +163,10 @@ func LoadTexture(file string) (uint32, error) {
 		gl.UNSIGNED_BYTE,
 		gl.Ptr(rgba.Pix))
 
-	return texture, nil
+        return Texture{
+            glid: texture, 
+            w: rgba.Bounds().Dx(), 
+            h: rgba.Bounds().Dy(),
+        }, nil
 }
 

@@ -15,7 +15,7 @@ var glTextures = []uint32{
     gl.TEXTURE7,
 }
 
-
+// TODO : use geometry shader for funz
 var squareVerts = []float32{
     //X     Y    U    V
     -1.0, -1.0, 1.0, 0.0,
@@ -26,17 +26,32 @@ var squareVerts = []float32{
     -1.0, 1.0, 1.0, 1.0,
 }
 
+type Rect struct {
+    x int
+    y int
+    w int
+    h int
+}
+
+type Texture struct {
+    glid uint32
+    w int
+    h int
+}
+
 type Sprite struct {
     vao uint32
     vbo uint32
     program uint32
-    textures []uint32
+    textures []Texture
+    rect Rect
 }
 
-func NewSprite(program uint32, textures []uint32) *Sprite {
+func NewSprite(x, y, w, h int, program uint32, textures []Texture) Sprite {
     s := Sprite{
         textures: textures,
         program: program,
+        rect: Rect{x, y, w, h},
     }
 
 	gl.UseProgram(s.program)
@@ -56,7 +71,7 @@ func NewSprite(program uint32, textures []uint32) *Sprite {
 	gl.EnableVertexAttribArray(uvAttr)
 	gl.VertexAttribPointer(uvAttr, 2, gl.FLOAT, false, 4 * float32Size, gl.PtrOffset(2 * float32Size))
 
-    return &s
+    return s
 }
 
 func (s *Sprite) Draw() {
@@ -67,7 +82,7 @@ func (s *Sprite) Draw() {
     // unbind the texture if its not used.
     for i, texture := range s.textures {
         gl.ActiveTexture(glTextures[i])
-        gl.BindTexture(gl.TEXTURE_2D, texture)
+        gl.BindTexture(gl.TEXTURE_2D, texture.glid)
     }
 	gl.DrawArrays(gl.TRIANGLES, 0, 6)
 }
