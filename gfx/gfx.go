@@ -15,6 +15,15 @@ import (
 )
 
 
+type Viewport struct {
+    pixelWidth int 
+    pixelHeight int
+    tilesWidth int
+    tilesHeight int
+    tileWidth int
+    tileHeight int
+}
+
 const float32Size = 4
 
 func init() {
@@ -22,7 +31,27 @@ func init() {
 	runtime.LockOSThread()
 }
 
-func InitWindow(width, height int) (*glfw.Window, error) {
+func CalculateViewport(tileW, tileH, tileCountW, tileCountH, windowW, windowH int) (Viewport) {
+    scale1W := tileW * tileCountW 
+    scale1H := tileH * tileCountH 
+
+    tileScaleX := windowW / scale1W 
+    tileScaleY := windowH / scale1H 
+
+    viewportW := tileScaleX * scale1W
+    viewportH := tileScaleY * scale1H
+
+    return Viewport{
+        viewportW,
+        viewportH,
+        tileCountW,
+        tileCountH,
+        tileScaleX * tileW,
+        tileScaleY * tileH,
+    }
+}
+
+func InitWindow(windowW, windowH int) (*glfw.Window, error) {
 	if err := glfw.Init(); err != nil {
 		log.Fatalln("failed to initialize glfw:", err)
 	}
@@ -32,7 +61,8 @@ func InitWindow(width, height int) (*glfw.Window, error) {
 	glfw.WindowHint(glfw.ContextVersionMinor, 1)
 	glfw.WindowHint(glfw.OpenGLProfile, glfw.OpenGLCoreProfile)
 	glfw.WindowHint(glfw.OpenGLForwardCompatible, glfw.True)
-	window, err := glfw.CreateWindow(width, height, "Yanhg", nil, nil)
+
+	window, err := glfw.CreateWindow(windowW, windowH, "Yanhg", nil, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -53,14 +83,15 @@ func InitWindow(width, height int) (*glfw.Window, error) {
 	gl.Disable(gl.SCISSOR_TEST)
 	gl.ClearColor(1.0, 1.0, 0.0, 1.0)
 
-	{
-		realWidth, realHeight := window.GetFramebufferSize()
+    {
+        realWidth, realHeight := window.GetFramebufferSize()
+
         // TODO : this must be set to a usable value based on the games desired
         // viewport width in tiles * the standard tile dimensions. we then need
         // to find a multiplier to scale the tiles by so that we can letterbox
         // the viewport should we need to.
-		gl.Viewport(0, 0, int32(realWidth), int32(realHeight))
-	}
+        gl.Viewport(0, 0, int32(realWidth), int32(realHeight))
+    }
 
     return window, nil
 }
