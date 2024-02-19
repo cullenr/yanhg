@@ -11,7 +11,7 @@ import (
 	"strings"
 
 	"github.com/go-gl/gl/v4.1-core/gl"
-	"github.com/go-gl/glfw/v3.2/glfw"
+	"github.com/go-gl/glfw/v3.3/glfw"
 )
 
 const float32Size = 4
@@ -54,14 +54,14 @@ func InitWindow(width, height int) (*glfw.Window, error) {
 
 	{
 		realWidth, realHeight := window.GetFramebufferSize()
-        // TODO : this must be set to a usable value based on the games desired
-        // viewport width in tiles * the standard tile dimensions. we then need
-        // to find a multiplier to scale the tiles by so that we can letterbox
-        // the viewport should we need to.
+		// TODO : this must be set to a usable value based on the games desired
+		// viewport width in tiles * the standard tile dimensions. we then need
+		// to find a multiplier to scale the tiles by so that we can letterbox
+		// the viewport should we need to.
 		gl.Viewport(0, 0, int32(realWidth), int32(realHeight))
 	}
 
-    return window, nil
+	return window, nil
 }
 
 func Destroy() {
@@ -136,7 +136,7 @@ func LoadTexture(file string) (uint32, error) {
 	}
 
 	rgba := image.NewRGBA(img.Bounds())
-	if rgba.Stride != rgba.Rect.Size().X * 4 {
+	if rgba.Stride != rgba.Rect.Size().X*4 {
 		return 0, fmt.Errorf("unsupported stride")
 	}
 
@@ -163,4 +163,3 @@ func LoadTexture(file string) (uint32, error) {
 
 	return texture, nil
 }
-
